@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Calculator</title>
+  <style>
+    /* ====== Page Styling ====== */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea, #764ba2); /* nice gradient */
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* ====== Calculator Box ====== */
+    .calculator {
+      width: 320px;
+      background: #1e1e2f;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    }
+
+    /* ====== Display Screen ====== */
+    .display {
+      background: #111;
+      color: #0ff;
+      font-size: 2.2em;
+      padding: 15px;
+      text-align: right;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      overflow-x: auto; /* in case input is long */
+    }
+
+    /* ====== Buttons Layout ====== */
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* 4 buttons per row */
+      gap: 12px;
+    }
+
+    /* ====== Default Button Style ====== */
+    button {
+      padding: 20px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #2c2c3e;
+      color: #fff;
+      transition: transform 0.15s, background 0.2s;
+    }
+
+    button:hover {
+      background: #3d3d55;
+      transform: scale(1.05);
+    }
+
+    /* ====== Special Buttons ====== */
+    .operator { background: #ff9f43; }
+    .operator:hover { background: #e67e22; }
+
+    .equal { 
+      grid-column: span 2; /* make it bigger */
+      background: #2ecc71; 
+    }
+    .equal:hover { background: #27ae60; }
+
+    .clear { background: #e74c3c; }
+    .clear:hover { background: #c0392b; }
+
+    .backspace { background: #3498db; }
+    .backspace:hover { background: #2980b9; }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <!-- Display area -->
+    <div class="display" id="display">0</div>
+
+    <!-- Buttons -->
+    <div class="buttons">
+      <button class="clear">C</button>
+      <button class="backspace">⌫</button>
+      <button class="operator">/</button>
+      <button class="operator">*</button>
+      
+      <button>7</button>
+      <button>8</button>
+      <button>9</button>
+      <button class="operator">-</button>
+      
+      <button>4</button>
+      <button>5</button>
+      <button>6</button>
+      <button class="operator">+</button>
+      
+      <button>1</button>
+      <button>2</button>
+      <button>3</button>
+      <button>.</button>
+      
+      <button>0</button>
+      <button class="equal">=</button>
+    </div>
+  </div>
+
+  <script>
+    // ====== Get Elements ======
+    const display = document.getElementById('display');
+    const buttons = document.querySelectorAll('button');
+
+    // ====== Variables ======
+    let currentInput = '0';  // what the user types
+    let lastKey = '';        // remember the last key pressed
+
+    // ====== Update display function ======
+    function updateDisplay() {
+      display.textContent = currentInput;
+    }
+
+    // ====== Check if a character is an operator ======
+    function isOperator(char) {
+      return ['+', '-', '*', '/'].includes(char);
+    }
+
+    // ====== Button Click Logic ======
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const value = button.textContent; // value of button clicked
+
+        if (value === 'C') {
+          // Clear everything
+          currentInput = '0';
+        } else if (value === '⌫') {
+          // Backspace (remove last character)
+          currentInput = currentInput.slice(0, -1) || '0';
+        } else if (value === '=') {
+          // Try to calculate result
+          try {
+            currentInput = Function('"use strict";return (' + currentInput + ')')().toString();
+          } catch {
+            currentInput = 'Error';
+          }
+        } else {
+          // Handle numbers and operators
+          if (currentInput === '0' && !isOperator(value) && value !== '.') {
+            currentInput = value; // replace leading zero
+          } else {
+            if (isOperator(value) && isOperator(lastKey)) {
+              return; // stop if two operators pressed in a row
+            }
+            currentInput += value; // add input
+          }
+        }
+
+        // remember last pressed key
+        lastKey = value;
+        // update screen
+        updateDisplay();
+      });
+    });
+
+    // initial display update
+    updateDisplay();
+  </script>
+</body>
+</html>
